@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCTiers - Custom Leaderboard</title>
+    <title>MCTiers - Saveable Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
             --bg-dark: #080b10;
@@ -17,15 +16,12 @@
             --color-master: #ffb300;
             --color-ace: #f06292;
         }
-
         body {
             margin: 0;
             font-family: 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
         }
-
-        /* Navbar styles */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -34,15 +30,15 @@
             padding: 12px 40px;
             border-bottom: 1px solid var(--border-color);
         }
-
         .logo {
             font-size: 1.4rem;
             font-weight: 800;
             letter-spacing: 1px;
             color: #fff;
+            cursor: pointer;
+            user-select: none;
         }
         .logo-highlight { color: #ffb300; }
-
         .nav-left { display: flex; align-items: center; gap: 40px; }
         .nav-links { display: flex; gap: 20px; }
         .nav-links a {
@@ -55,7 +51,6 @@
             gap: 8px;
         }
         .nav-links a.active, .nav-links a:hover { color: #fff; }
-
         .search-bar {
             position: relative;
             background: #19202c;
@@ -72,15 +67,11 @@
             color: #fff;
             outline: none;
         }
-
-        /* Layout Container */
         .content-container {
             max-width: 1200px;
             margin: 30px auto;
             padding: 0 20px;
         }
-
-        /* Admin Panel Layout Styles */
         .admin-panel {
             background: var(--panel-dark);
             padding: 20px;
@@ -89,30 +80,25 @@
             border: 1px dashed var(--border-color);
             display: none;
         }
-
         .admin-panel h3 {
             margin-top: 0;
             margin-bottom: 15px;
             color: #ffb300;
         }
-
         #add-player-form {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-
         .form-row {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
         }
-
         .form-group {
             flex: 1;
             min-width: 140px;
         }
-
         .form-group label {
             display: block;
             font-size: 0.75rem;
@@ -120,7 +106,6 @@
             margin-bottom: 4px;
             font-weight: bold;
         }
-
         .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
@@ -131,11 +116,9 @@
             outline: none;
             box-sizing: border-box;
         }
-
         .form-group input:focus, .form-group select:focus {
             border-color: #ffb300;
         }
-
         .tier-inputs-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -145,7 +128,6 @@
             border-radius: 6px;
             border: 1px solid var(--border-color);
         }
-
         .submit-btn {
             background-color: #ffb300;
             color: #000;
@@ -157,12 +139,31 @@
             transition: background 0.2s;
             align-self: flex-start;
         }
-
-        .submit-btn:hover {
-            background-color: #ffe082;
+        .submit-btn:hover { background-color: #ffe082; }
+        
+        /* Save / Load Admin Actions */
+        .backup-zone {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
         }
+        .backup-btn {
+            background: #1e2530;
+            color: #fff;
+            border: 1px solid #313d52;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .backup-btn:hover { background: #252f3f; }
 
-        /* Category Tabs Container */
         .tabs-container {
             display: inline-flex; 
             gap: 8px;
@@ -171,8 +172,6 @@
             max-width: 100%;
             overflow-x: auto;
         }
-        
-        /* Compact Item Cards */
         .tab-btn {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -193,7 +192,6 @@
             transition: all 0.2s ease;
             flex-shrink: 0;
         }
-
         .tab-emoji {
             font-size: 1.25rem;
             line-height: 1;
@@ -201,20 +199,13 @@
             align-items: center;
             justify-content: center;
         }
-
-        .tab-btn:hover {
-            border-color: #313d52;
-            color: #fff;
-        }
-
+        .tab-btn:hover { border-color: #313d52; color: #fff; }
         .tab-btn.active {
             background-color: rgba(30, 37, 48, 0.3);
             border-color: #ffb300;
             color: #fff;
             box-shadow: 0 0 10px rgba(255, 179, 0, 0.15);
         }
-
-        /* Utility Info Row */
         .info-row {
             display: flex;
             justify-content: flex-end;
@@ -234,38 +225,28 @@
             display: none;
         }
         .info-btn:hover { background-color: #ff4444; }
-        
         #logout-btn {
             background: #2a3342;
             border: 1px solid var(--border-color);
             display: none;
         }
-
-        .server-ip {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
+        .server-ip { font-size: 0.85rem; color: var(--text-muted); }
         .server-ip span { color: #5cdafc; font-weight: bold;}
-
-        /* Leaderboard Grid Layout */
         .leaderboard-table {
             background: var(--panel-dark);
             border-radius: 12px;
             padding: 20px;
             border: 1px solid var(--border-color);
         }
-
-        .leaderboard-table.is-admin .table-header,
-        .leaderboard-table.is-admin .player-row {
-            grid-template-columns: 60px 1.2fr 80px 2.5fr 100px;
-        }
-
         .table-header, .player-row {
             display: grid;
             grid-template-columns: 60px 1.2fr 80px 2.5fr;
             align-items: center;
         }
-
+        .leaderboard-table.is-admin .table-header,
+        .leaderboard-table.is-admin .player-row {
+            grid-template-columns: 60px 1.2fr 80px 2.5fr 100px;
+        }
         .table-header {
             color: var(--text-muted);
             font-size: 0.8rem;
@@ -273,7 +254,6 @@
             padding: 10px 15px;
             border-bottom: 1px solid var(--border-color);
         }
-
         .player-row {
             background: var(--row-bg);
             margin-top: 8px;
@@ -282,15 +262,9 @@
             border: 1px solid transparent;
             transition: all 0.2s;
         }
-        .player-row:hover { 
-            background: #19202c; 
-            border-color: var(--border-color);
-        }
-
+        .player-row:hover { background: #19202c; border-color: var(--border-color); }
         .col-actions, .col-actions-header { display: none; }
         .is-admin .col-actions, .is-admin .col-actions-header { display: block; }
-
-        /* Rank Badge */
         .rank-badge {
             font-size: 1.2rem;
             font-style: italic;
@@ -303,49 +277,17 @@
         .rank-2 { background: #b0bec5; color: #000; clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); width: 35px;}
         .rank-3 { background: #b07d62; color: #000; clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); width: 35px;}
         .regular-rank { color: var(--text-muted); text-align: center; width: 35px;}
-
-        /* Profile alignment */
-        .player-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .avatar {
-            border-radius: 6px;
-            background: #252f3f;
-        }
-        .username {
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-        .sub-text {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
+        .player-profile { display: flex; align-items: center; gap: 15px; }
+        .avatar { border-radius: 6px; background: #252f3f; width: 40px; height: 40px; }
+        .username { font-weight: 700; font-size: 1.05rem; }
+        .sub-text { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
         .rank-title { font-weight: 600; }
         .title-master { color: var(--color-master); }
         .title-ace { color: var(--color-ace); }
-
-        /* Region Tags */
-        .region-tag {
-            font-size: 0.75rem;
-            font-weight: bold;
-            padding: 5px 9px;
-            border-radius: 6px;
-            width: fit-content;
-        }
+        .region-tag { font-size: 0.75rem; font-weight: bold; padding: 5px 9px; border-radius: 6px; width: fit-content; }
         .region-tag.na { background: rgba(229, 115, 115, 0.2); color: #e57373; }
         .region-tag.eu { background: rgba(129, 199, 132, 0.2); color: #81c784; }
-
-        /* Multi-Tier Row Layout */
-        .multi-tiers-container {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-start;
-            flex-wrap: wrap;
-        }
-
+        .multi-tiers-container { display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap; }
         .mini-tier-badge {
             display: flex;
             flex-direction: column;
@@ -358,32 +300,12 @@
             border-radius: 50%;
             position: relative;
         }
-
-        .mini-tier-badge .badge-emoji {
-            font-size: 0.9rem;
-            margin-bottom: 1px;
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .mini-tier-badge .badge-emoji svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .mini-tier-label {
-            font-size: 0.65rem;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-        }
-
-        /* Color classes for ranks based on type */
+        .mini-tier-badge .badge-emoji { font-size: 0.9rem; margin-bottom: 1px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+        .mini-tier-badge .badge-emoji svg { width: 14px; height: 14px; }
+        .mini-tier-label { font-size: 0.65rem; font-weight: 800; letter-spacing: -0.3px; }
         .t-ht { color: #f28b82; }
         .t-lt { color: #ffb74d; }
         .t-none { color: #424d5e; }
-
         .delete-player-btn {
             background: transparent;
             border: 1px solid #e57373;
@@ -394,12 +316,8 @@
             font-size: 0.8rem;
             transition: all 0.2s;
             width: fit-content;
-            justify-self: end;
         }
-        .delete-player-btn:hover {
-            background: #e57373;
-            color: #000;
-        }
+        .delete-player-btn:hover { background: #e57373; color: #000; }
     </style>
 </head>
 <body>
@@ -422,8 +340,7 @@
         </div>
     </nav>
 
-    <nav class="content-container">
-
+    <div class="content-container">
         <section class="admin-panel" id="admin-section">
             <h3><i class="fa-solid fa-user-gear"></i> Admin Control Panel</h3>
             <form id="add-player-form">
@@ -451,44 +368,48 @@
                         </select>
                     </div>
                 </div>
-
                 <div>
                     <label style="display:block; font-size:0.8rem; color:var(--text-main); font-weight:bold; margin-bottom:8px;">Assign Game Mode Tiers</label>
-                    <div class="tier-inputs-grid" id="tier-dropdowns-container">
-                        </div>
+                    <div class="tier-inputs-grid" id="tier-dropdowns-container"></div>
                 </div>
-
-                <button type="submit" class="submit-btn">Add Player Row</button>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <button type="submit" class="submit-btn">Add Player Row</button>
+                </div>
             </form>
+
+            <div class="backup-zone">
+                <button class="backup-btn" id="export-btn"><i class="fa-solid fa-download"></i> 💾 Export Data File</button>
+                <button class="backup-btn" id="import-trigger-btn"><i class="fa-solid fa-upload"></i> 📂 Import Data File</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
         </section>
 
-        <div>
-            <div class="tabs-container">
-                <button class="tab-btn active" data-mode="Overall"><span class="tab-emoji">🌐</span>Overall</button>
-                <button class="tab-btn" data-mode="Crystal">
-                    <span class="tab-emoji">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px; height:18px;">
-                            <path d="M5 19h14v2H5z" fill="#242424" stroke="#111111" stroke-width="0.7"/>
-                            <path d="M6 18h12v1H6z" fill="#3a3a3a"/>
-                            <path d="M8 19h8v2H8z" fill="#15121c"/>
-                            <path d="M10 18l2-5 2 5z" fill="#ff3366" opacity="0.85"/>
-                            <path d="M11 18l1-3 1 3z" fill="#ffcbd5"/>
-                            <polygon points="12,2 21,10 12,18 3,10" fill="rgba(224, 247, 250, 0.15)" stroke="#b2ebf2" stroke-width="1" opacity="0.85"/>
-                            <polygon points="12,5 17,10 12,15 7,10" fill="#cc00ff" opacity="0.9"/>
-                            <polygon points="12,6 16,10 12,14 8,10" fill="#e600ff"/>
-                            <line x1="12" y1="5" x2="12" y2="15" stroke="#ffffff" stroke-width="0.6" opacity="0.7"/>
-                            <line x1="7" y1="10" x2="17" y2="10" stroke="#ffffff" stroke-width="0.6" opacity="0.4"/>
-                        </svg>
-                    </span>Vanilla
-                </button>
-                <button class="tab-btn" data-mode="UHC"><span class="tab-emoji">❤️</span>UHC</button>
-                <button class="tab-btn" data-mode="Pot"><span class="tab-emoji">🧪</span>Pot</button>
-                <button class="tab-btn" data-mode="Neth Pot"><span class="tab-emoji">🪖</span>NethOP</button>
-                <button class="tab-btn" data-mode="SMP"><span class="tab-emoji">🟢</span>SMP</button>
-                <button class="tab-btn" data-mode="Sword"><span class="tab-emoji">🗡️</span>Sword</button>
-                <button class="tab-btn" data-mode="Axe"><span class="tab-emoji">🪓</span>Axe</button>
-                <button class="tab-btn" data-mode="Mace"><span class="tab-emoji">🔨</span>Mace</button>
-            </div>
+        <div class="tabs-container">
+            <button class="tab-btn active" data-mode="Overall"><span class="tab-emoji">🌐</span>Overall</button>
+            <button class="tab-btn" data-mode="Crystal">
+                <span class="tab-emoji">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px; height:18px;">
+                        <path d="M5 19h14v2H5z" fill="#242424" stroke="#111111" stroke-width="0.7"/>
+                        <path d="M6 18h12v1H6z" fill="#3a3a3a"/>
+                        <path d="M8 19h8v2H8z" fill="#15121c"/>
+                        <path d="M10 18l2-5 2 5z" fill="#ff3366" opacity="0.85"/>
+                        <path d="M11 18l1-3 1 3z" fill="#ffcbd5"/>
+                        <polygon points="12,2 21,10 12,18 3,10" fill="rgba(224, 247, 250, 0.15)" stroke="#b2ebf2" stroke-width="1" opacity="0.85"/>
+                        <polygon points="12,5 17,10 12,15 7,10" fill="#cc00ff" opacity="0.9"/>
+                        <polygon points="12,6 16,10 12,14 8,10" fill="#e600ff"/>
+                        <line x1="12" y1="5" x2="12" y2="15" stroke="#ffffff" stroke-width="0.6" opacity="0.7"/>
+                        <line x1="7" y1="10" x2="17" y2="10" stroke="#ffffff" stroke-width="0.6" opacity="0.4"/>
+                    </svg>
+                </span>Vanilla
+            </button>
+            <button class="tab-btn" data-mode="UHC"><span class="tab-emoji">❤️</span>UHC</button>
+            <button class="tab-btn" data-mode="Pot"><span class="tab-emoji">🧪</span>Pot</button>
+            <button class="tab-btn" data-mode="Neth Pot"><span class="tab-emoji">🪖</span>NethOP</button>
+            <button class="tab-btn" data-mode="SMP"><span class="tab-emoji">🟢</span>SMP</button>
+            <button class="tab-btn" data-mode="Sword"><span class="tab-emoji">🗡️</span>Sword</button>
+            <button class="tab-btn" data-mode="Axe"><span class="tab-emoji">🪓</span>Axe</button>
+            <button class="tab-btn" data-mode="Mace"><span class="tab-emoji">🔨</span>Mace</button>
         </div>
 
         <div class="info-row">
@@ -503,18 +424,15 @@
                 <div class="col-player">PLAYER</div>
                 <div class="col-region">REGION</div>
                 <div class="col-tiers-header">TIERS</div>
-                <div class="col-actions-header" style="text-align: right;">ACTIONS</div>
+                <div class="col-actions-header" style="text-align: right; display:none;">ACTIONS</div>
             </div>
-
             <div id="leaderboard-rows"></div>
         </div>
-    </nav>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const SECRET_CODE = "admin123";
-
-            // Replaced cardboard box string with optimized End Crystal SVG literal strings
             const gameModesList = [
                 { id: "Crystal", label: "Vanilla", emoji: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 19h14v2H5z" fill="#242424" stroke="#111111" stroke-width="0.7"/><path d="M6 18h12v1H6z" fill="#3a3a3a"/><path d="M8 19h8v2H8z" fill="#15121c"/><path d="M10 18l2-5 2 5z" fill="#ff3366" opacity="0.85"/><path d="M11 18l1-3 1 3z" fill="#ffcbd5"/><polygon points="12,2 21,10 12,18 3,10" fill="rgba(224, 247, 250, 0.15)" stroke="#b2ebf2" stroke-width="1" opacity="0.85"/><polygon points="12,5 17,10 12,15 7,10" fill="#cc00ff" opacity="0.9"/><polygon points="12,6 16,10 12,14 8,10" fill="#e600ff"/><line x1="12" y1="5" x2="12" y2="15" stroke="#ffffff" stroke-width="0.6" opacity="0.7"/><line x1="7" y1="10" x2="17" y2="10" stroke="#ffffff" stroke-width="0.6" opacity="0.4"/></svg>` },
                 { id: "UHC", label: "UHC", emoji: "❤️" },
@@ -526,16 +444,12 @@
                 { id: "Mace", label: "Mace", emoji: "🔨" }
             ];
 
-            // Render Form Tier Dropdowns dynamically
             const tierContainer = document.getElementById('tier-dropdowns-container');
             gameModesList.forEach(mode => {
                 const group = document.createElement('div');
                 group.className = 'form-group';
-                
-                // Adjusted wrapper context logic to allow inline SVG layouts in form element labels cleanly
                 const isSvg = mode.emoji.includes('<svg');
                 const emojiRender = isSvg ? `<span style="display:inline-flex; width:12px; height:12px; vertical-align:middle; margin-right:4px;">${mode.emoji}</span>` : `${mode.emoji} `;
-                
                 group.innerHTML = `
                     <label>${emojiRender}${mode.label}</label>
                     <select class="gamemode-tier-input" data-mode="${mode.id}">
@@ -556,13 +470,21 @@
             const tabs = document.querySelectorAll('.tab-btn');
             const clearAllBtn = document.getElementById('clear-all-btn');
             const logoutBtn = document.getElementById('logout-btn');
-            
             const adminSection = document.getElementById('admin-section');
             const mainTable = document.getElementById('main-table');
             const logoTrigger = document.getElementById('logo-trigger');
+            const actionsHeader = document.querySelector('.col-actions-header');
+
+            const exportBtn = document.getElementById('export-btn');
+            const importTriggerBtn = document.getElementById('import-trigger-btn');
+            const importFileInput = document.getElementById('import-file-input');
 
             let players = JSON.parse(localStorage.getItem('mcPlayersRows')) || [];
             let isAdmin = sessionStorage.getItem('mcIsAdmin') === 'true';
+
+            function savePlayersData() {
+                localStorage.setItem('mcPlayersRows', JSON.stringify(players));
+            }
 
             function checkAdminUI() {
                 if (isAdmin) {
@@ -570,20 +492,17 @@
                     clearAllBtn.style.display = "block";
                     logoutBtn.style.display = "block";
                     mainTable.classList.add('is-admin');
+                    if(actionsHeader) actionsHeader.style.display = "block";
                 } else {
                     adminSection.style.display = "none";
                     clearAllBtn.style.display = "none";
                     logoutBtn.style.display = "none";
                     mainTable.classList.remove('is-admin');
+                    if(actionsHeader) actionsHeader.style.display = "none";
                 }
             }
 
-            document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
-                    promptAdminLogin();
-                }
-            });
-
+            // Click logo 5 times to open Admin layout
             let clickCount = 0;
             logoTrigger.addEventListener('click', () => {
                 clickCount++;
@@ -595,7 +514,7 @@
 
             function promptAdminLogin() {
                 if (isAdmin) return;
-                const accessInput = prompt("Enter Secret Admin Access Code to unlock changes:");
+                const accessInput = prompt("Enter Secret Admin Access Code:");
                 if (accessInput === SECRET_CODE) {
                     isAdmin = true;
                     sessionStorage.setItem('mcIsAdmin', 'true');
@@ -603,7 +522,7 @@
                     const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
                     renderLeaderboard(searchInput.value, currentActiveTab);
                 } else if (accessInput !== null) {
-                    alert("Incorrect Code Access Denied.");
+                    alert("Incorrect Code.");
                 }
             }
 
@@ -615,11 +534,56 @@
                 renderLeaderboard(searchInput.value, currentActiveTab);
             });
 
+            // --- SAVE FILE LOGIC (EXPORT TO FILE) ---
+            exportBtn.addEventListener('click', () => {
+                if(players.length === 0) {
+                    alert("Add some players to your leaderboard before exporting!");
+                    return;
+                }
+                const dataStr = JSON.stringify(players, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'mctiers_leaderboard_data.json';
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+
+            // --- LOAD FILE LOGIC (IMPORT FROM FILE) ---
+            importTriggerBtn.addEventListener('click', () => {
+                importFileInput.click();
+            });
+
+            importFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const parsedData = JSON.parse(event.target.result);
+                        if (Array.isArray(parsedData)) {
+                            players = parsedData;
+                            savePlayersData();
+                            renderLeaderboard();
+                            alert(`Successfully loaded ${players.length} players!`);
+                        } else {
+                            alert("Invalid file format.");
+                        }
+                    } catch (err) {
+                        alert("Error reading file configuration.");
+                    }
+                };
+                reader.readAsText(file);
+                importFileInput.value = ""; // Clear file selector
+            });
+
             function renderLeaderboard(filterQuery = "", activeTab = "Overall") {
                 rowsContainer.innerHTML = "";
-                players.sort((a, b) => b.points - a.points);
-
-                let filteredPlayers = players;
+                const displayPlayers = [...players].sort((a, b) => b.points - a.points);
+                let filteredPlayers = displayPlayers;
 
                 if (filterQuery.trim() !== "") {
                     filteredPlayers = filteredPlayers.filter(p => 
@@ -628,20 +592,19 @@
                 }
 
                 if (filteredPlayers.length === 0) {
-                    rowsContainer.innerHTML = `<div style="padding: 30px; color: #53637c; text-align:center; font-weight:600;">No players found. Try adding some via admin panel!</div>`;
+                    rowsContainer.innerHTML = `<div style="padding: 30px; color: #53637c; text-align:center; font-weight:600;">No data active. Click "Import Data File" or active Admin settings to populate rows.</div>`;
                     return;
                 }
 
                 filteredPlayers.forEach((player, index) => {
                     const currentRank = index + 1;
-                    
                     let rankClass = "regular-rank";
                     if (currentRank === 1) rankClass = "rank-1";
                     if (currentRank === 2) rankClass = "rank-2";
                     if (currentRank === 3) rankClass = "rank-3";
 
                     const titleClass = player.title === "Combat Master" ? "title-master" : "title-ace";
-                    const regionClass = player.region.toLowerCase();
+                    const regionClass = player.region ? player.region.toLowerCase() : 'na';
 
                     let tiersHTML = '<div class="multi-tiers-container">';
                     gameModesList.forEach(mode => {
@@ -649,7 +612,6 @@
                         let tierColorClass = "t-none";
                         if (tierVal.startsWith("HT")) tierColorClass = "t-ht";
                         if (tierVal.startsWith("LT")) tierColorClass = "t-lt";
-
                         const isActiveIndicator = (activeTab === mode.id) ? `style="border-color:#ffb300; background: rgba(255,179,0,0.05);"` : '';
 
                         tiersHTML += `
@@ -663,11 +625,10 @@
 
                     const row = document.createElement('div');
                     row.className = 'player-row';
-                    
                     let actionButtonHTML = '';
                     if (isAdmin) {
                         actionButtonHTML = `
-                            <div class="col-actions" style="text-align: right;">
+                            <div class="col-actions" style="text-align: right; display:block;">
                                 <button class="delete-player-btn" data-username="${player.username}"><i class="fa-solid fa-user-minus"></i> Remove</button>
                             </div>
                         `;
@@ -688,8 +649,6 @@
                     `;
                     rowsContainer.appendChild(row);
                 });
-
-                localStorage.setItem('mcPlayersRows', JSON.stringify(players));
             }
 
             addForm.addEventListener('submit', (e) => {
@@ -698,7 +657,7 @@
 
                 const username = document.getElementById('p-username').value.trim();
                 const title = document.getElementById('p-title').value;
-                const points = parseInt(document.getElementById('p-points').value);
+                const points = parseInt(document.getElementById('p-points').value) || 0;
                 const region = document.getElementById('p-region').value;
                 
                 const tiers = {};
@@ -708,13 +667,13 @@
                 });
 
                 if (players.some(p => p.username.toLowerCase() === username.toLowerCase())) {
-                    alert("This player already exists on the leaderboard!");
+                    alert("This player already exists!");
                     return;
                 }
 
                 players.push({ username, title, points, region, tiers });
+                savePlayersData();
                 addForm.reset();
-                
                 document.querySelectorAll('.gamemode-tier-input').forEach(s => s.value = "---");
                 
                 const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
@@ -723,12 +682,12 @@
 
             rowsContainer.addEventListener('click', (e) => {
                 if (!isAdmin) return;
-                if (e.target.classList.contains('delete-player-btn') || e.target.closest('.delete-player-btn')) {
-                    const targetBtn = e.target.classList.contains('delete-player-btn') ? e.target : e.target.closest('.delete-player-btn');
+                const targetBtn = e.target.classList.contains('delete-player-btn') ? e.target : e.target.closest('.delete-player-btn');
+                if (targetBtn) {
                     const targetUser = targetBtn.getAttribute('data-username');
-                    const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
-                    
                     players = players.filter(p => p.username !== targetUser);
+                    savePlayersData();
+                    const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
                     renderLeaderboard(searchInput.value, currentActiveTab);
                 }
             });
@@ -741,9 +700,7 @@
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('add-player-form'); // safety class addition if layout relies on state handling inside classes
                     tab.classList.add('active');
-                    
                     const selectedMode = tab.getAttribute('data-mode');
                     renderLeaderboard(searchInput.value, selectedMode);
                 });
@@ -751,8 +708,9 @@
 
             clearAllBtn.addEventListener('click', () => {
                 if (!isAdmin) return;
-                if(confirm("Are you sure you want to completely clear your custom leaderboard?")) {
+                if(confirm("Wipe layout data completely?")) {
                     players = [];
+                    savePlayersData();
                     renderLeaderboard();
                 }
             });
