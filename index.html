@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCTiers - Custom Leaderboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #080b10;
+            --panel-dark: #0f131a;
+            --row-bg: #141923;
+            --border-color: #1e2530;
+            --text-main: #f5f6f7;
+            --text-muted: #53637c;
+            --color-master: #ffb300;
+            --color-ace: #f06292;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+        }
+
+        /* Navbar styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--panel-dark);
+            padding: 12px 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+        .logo-highlight { color: #ffb300; }
+
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-links a.active, .nav-links a:hover { color: #fff; }
+
+        .search-bar {
+            position: relative;
+            background: #19202c;
+            border-radius: 6px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .search-bar input {
+            background: none;
+            border: none;
+            color: #fff;
+            outline: none;
+        }
+
+        /* Layout Container */
+        .content-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Admin Panel Layout Styles */
+        .admin-panel {
+            background: var(--panel-dark);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px dashed var(--border-color);
+            display: none;
+        }
+
+        .admin-panel h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #ffb300;
+        }
+
+        #add-player-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--row-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #fff;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #ffb300;
+        }
+
+        .tier-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .submit-btn {
+            background-color: #ffb300;
+            color: #000;
+            border: none;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            align-self: flex-start;
+        }
+
+        .submit-btn:hover {
+            background-color: #ffe082;
+        }
+
+        /* Category Tabs Container */
+        .tabs-container {
+            display: inline-flex; 
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 2px;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        /* Compact Item Cards */
+        .tab-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 0;
+            width: 78px;      
+            height: 68px;     
+            box-sizing: border-box;
+            font-weight: 700;
+            font-size: 0.8rem; 
+            border-radius: 14px; 
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .tab-emoji {
+            font-size: 1.25rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-btn:hover {
+            border-color: #313d52;
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            background-color: rgba(30, 37, 48, 0.3);
+            border-color: #ffb300;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 179, 0, 0.15);
+        }
+
+        /* Utility Info Row */
+        .info-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 15px 0;
+            gap: 15px;
+        }
+        .info-btn {
+            background: #cc3333;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: none;
+        }
+        .info-btn:hover { background-color: #ff4444; }
+        
+        #logout-btn {
+            background: #2a3342;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .server-ip {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .server-ip span { color: #5cdafc; font-weight: bold;}
+
+        /* Leaderboard Grid Layout */
+        .leaderboard-table {
+            background: var(--panel-dark);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .leaderboard-table.is-admin .table-header,
+        .leaderboard-table.is-admin .player-row {
+            grid-template-columns: 60px 1.2fr 80px 2.5fr 100px;
+        }
+
+        .table-header, .player-row {
+            display: grid;
+            grid-template-columns: 60px 1.2fr 80px 2.5fr;
+            align-items: center;
+        }
+
+        .table-header {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .player-row {
+            background: var(--row-bg);
+            margin-top: 8px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .player-row:hover { 
+            background: #19202c; 
+            border-color: var(--border-color);
+        }
+
+        .col-actions, .col-actions-header { display: none; }
+        .is-admin .col-actions, .is-admin .col-actions-header { display: block; }
+
+        /* Rank Badge */
+        .rank-badge {
+            font-size: 1.2rem;
+            font-style: italic;
+            font-weight: 900;
+            padding: 4px 10px;
+            width: fit-content;
+            border-radius: 4px;
+        }
+        .rank-1 { background: #ffb300; color: #000; clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); width: 35px;}
+        .rank-2 { background: #b0bec5; color: #000; clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); width: 35px;}
+        .rank-3 { background: #b07d62; color: #000; clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); width: 35px;}
+        .regular-rank { color: var(--text-muted); text-align: center; width: 35px;}
+
+        /* Profile alignment */
+        .player-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .avatar {
+            border-radius: 6px;
+            background: #252f3f;
+        }
+        .username {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .sub-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .rank-title { font-weight: 600; }
+        .title-master { color: var(--color-master); }
+        .title-ace { color: var(--color-ace); }
+
+        /* Region Tags */
+        .region-tag {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 5px 9px;
+            border-radius: 6px;
+            width: fit-content;
+        }
+        .region-tag.na { background: rgba(229, 115, 115, 0.2); color: #e57373; }
+        .region-tag.eu { background: rgba(129, 199, 132, 0.2); color: #81c784; }
+
+        /* Multi-Tier Row Layout */
+        .multi-tiers-container {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .mini-tier-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            background: rgba(15, 19, 26, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .mini-tier-badge .badge-emoji {
+            font-size: 0.9rem;
+            margin-bottom: 1px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mini-tier-badge .badge-emoji svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .mini-tier-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        /* Color classes for ranks based on type */
+        .t-ht { color: #f28b82; }
+        .t-lt { color: #ffb74d; }
+        .t-none { color: #424d5e; }
+
+        .delete-player-btn {
+            background: transparent;
+            border: 1px solid #e57373;
+            color: #e57373;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            width: fit-content;
+            justify-self: end;
+        }
+        .delete-player-btn:hover {
+            background: #e57373;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="logo" id="logo-trigger">MC<span class="logo-highlight">TIERS</span></span>
+            <div class="nav-links">
+                <a href="#" class="active"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="#"><i class="fa-solid fa-trophy"></i> Rankings</a>
+                <a href="#"><i class="fa-brands fa-discord"></i> Discords</a>
+                <a href="#"><i class="fa-solid fa-code"></i> API Docs</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Search player...">
+            </div>
+        </div>
+    </nav>
+
+    <nav class="content-container">
+
+        <section class="admin-panel" id="admin-section">
+            <h3><i class="fa-solid fa-user-gear"></i> Admin Control Panel</h3>
+            <form id="add-player-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="p-username" placeholder="Minecraft Username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <select id="p-title">
+                            <option value="Combat Master">Combat Master</option>
+                            <option value="Combat Ace">Combat Ace</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Points</label>
+                        <input type="number" id="p-points" placeholder="Points" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Region</label>
+                        <select id="p-region">
+                            <option value="NA">NA</option>
+                            <option value="EU">EU</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:0.8rem; color:var(--text-main); font-weight:bold; margin-bottom:8px;">Assign Game Mode Tiers</label>
+                    <div class="tier-inputs-grid" id="tier-dropdowns-container">
+                        </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Add Player Row</button>
+            </form>
+        </section>
+
+        <div>
+            <div class="tabs-container">
+                <button class="tab-btn active" data-mode="Overall"><span class="tab-emoji">🌐</span>Overall</button>
+                <button class="tab-btn" data-mode="Crystal">
+                    <span class="tab-emoji">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px; height:18px;">
+                            <path d="M5 19h14v2H5z" fill="#242424" stroke="#111111" stroke-width="0.7"/>
+                            <path d="M6 18h12v1H6z" fill="#3a3a3a"/>
+                            <path d="M8 19h8v2H8z" fill="#15121c"/>
+                            <path d="M10 18l2-5 2 5z" fill="#ff3366" opacity="0.85"/>
+                            <path d="M11 18l1-3 1 3z" fill="#ffcbd5"/>
+                            <polygon points="12,2 21,10 12,18 3,10" fill="rgba(224, 247, 250, 0.15)" stroke="#b2ebf2" stroke-width="1" opacity="0.85"/>
+                            <polygon points="12,5 17,10 12,15 7,10" fill="#cc00ff" opacity="0.9"/>
+                            <polygon points="12,6 16,10 12,14 8,10" fill="#e600ff"/>
+                            <line x1="12" y1="5" x2="12" y2="15" stroke="#ffffff" stroke-width="0.6" opacity="0.7"/>
+                            <line x1="7" y1="10" x2="17" y2="10" stroke="#ffffff" stroke-width="0.6" opacity="0.4"/>
+                        </svg>
+                    </span>Vanilla
+                </button>
+                <button class="tab-btn" data-mode="UHC"><span class="tab-emoji">❤️</span>UHC</button>
+                <button class="tab-btn" data-mode="Pot"><span class="tab-emoji">🧪</span>Pot</button>
+                <button class="tab-btn" data-mode="Neth Pot"><span class="tab-emoji">🪖</span>NethOP</button>
+                <button class="tab-btn" data-mode="SMP"><span class="tab-emoji">🟢</span>SMP</button>
+                <button class="tab-btn" data-mode="Sword"><span class="tab-emoji">🗡️</span>Sword</button>
+                <button class="tab-btn" data-mode="Axe"><span class="tab-emoji">🪓</span>Axe</button>
+                <button class="tab-btn" data-mode="Mace"><span class="tab-emoji">🔨</span>Mace</button>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <button class="info-btn" id="logout-btn"><i class="fa-solid fa-lock"></i> Logout Admin</button>
+            <button class="info-btn" id="clear-all-btn"><i class="fa-solid fa-trash"></i> Wipe All Data</button>
+            <div class="server-ip">SERVER IP: <span>mcpvp.club</span></div>
+        </div>
+
+        <div class="leaderboard-table" id="main-table">
+            <div class="table-header">
+                <div class="col-rank">#</div>
+                <div class="col-player">PLAYER</div>
+                <div class="col-region">REGION</div>
+                <div class="col-tiers-header">TIERS</div>
+                <div class="col-actions-header" style="text-align: right;">ACTIONS</div>
+            </div>
+
+            <div id="leaderboard-rows"></div>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const SECRET_CODE = "admin123";
+
+            // Replaced cardboard box string with optimized End Crystal SVG literal strings
+            const gameModesList = [
+                { id: "Crystal", label: "Vanilla", emoji: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 19h14v2H5z" fill="#242424" stroke="#111111" stroke-width="0.7"/><path d="M6 18h12v1H6z" fill="#3a3a3a"/><path d="M8 19h8v2H8z" fill="#15121c"/><path d="M10 18l2-5 2 5z" fill="#ff3366" opacity="0.85"/><path d="M11 18l1-3 1 3z" fill="#ffcbd5"/><polygon points="12,2 21,10 12,18 3,10" fill="rgba(224, 247, 250, 0.15)" stroke="#b2ebf2" stroke-width="1" opacity="0.85"/><polygon points="12,5 17,10 12,15 7,10" fill="#cc00ff" opacity="0.9"/><polygon points="12,6 16,10 12,14 8,10" fill="#e600ff"/><line x1="12" y1="5" x2="12" y2="15" stroke="#ffffff" stroke-width="0.6" opacity="0.7"/><line x1="7" y1="10" x2="17" y2="10" stroke="#ffffff" stroke-width="0.6" opacity="0.4"/></svg>` },
+                { id: "UHC", label: "UHC", emoji: "❤️" },
+                { id: "Pot", label: "Pot", emoji: "🧪" },
+                { id: "Neth Pot", label: "NethOP", emoji: "🪖" },
+                { id: "SMP", label: "SMP", emoji: "🟢" },
+                { id: "Sword", label: "Sword", emoji: "🗡️" },
+                { id: "Axe", label: "Axe", emoji: "🪓" },
+                { id: "Mace", label: "Mace", emoji: "🔨" }
+            ];
+
+            // Render Form Tier Dropdowns dynamically
+            const tierContainer = document.getElementById('tier-dropdowns-container');
+            gameModesList.forEach(mode => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                
+                // Adjusted wrapper context logic to allow inline SVG layouts in form element labels cleanly
+                const isSvg = mode.emoji.includes('<svg');
+                const emojiRender = isSvg ? `<span style="display:inline-flex; width:12px; height:12px; vertical-align:middle; margin-right:4px;">${mode.emoji}</span>` : `${mode.emoji} `;
+                
+                group.innerHTML = `
+                    <label>${emojiRender}${mode.label}</label>
+                    <select class="gamemode-tier-input" data-mode="${mode.id}">
+                        <option value="---">---</option>
+                        <option value="HT1">HT1</option><option value="HT2">HT2</option>
+                        <option value="HT3">HT3</option><option value="HT4">HT4</option>
+                        <option value="HT5">HT5</option><option value="LT1">LT1</option>
+                        <option value="LT2">LT2</option><option value="LT3">LT3</option>
+                        <option value="LT4">LT4</option><option value="LT5">LT5</option>
+                    </select>
+                `;
+                tierContainer.appendChild(group);
+            });
+
+            const addForm = document.getElementById('add-player-form');
+            const rowsContainer = document.getElementById('leaderboard-rows');
+            const searchInput = document.getElementById('search-input');
+            const tabs = document.querySelectorAll('.tab-btn');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            const adminSection = document.getElementById('admin-section');
+            const mainTable = document.getElementById('main-table');
+            const logoTrigger = document.getElementById('logo-trigger');
+
+            let players = JSON.parse(localStorage.getItem('mcPlayersRows')) || [];
+            let isAdmin = sessionStorage.getItem('mcIsAdmin') === 'true';
+
+            function checkAdminUI() {
+                if (isAdmin) {
+                    adminSection.style.display = "block";
+                    clearAllBtn.style.display = "block";
+                    logoutBtn.style.display = "block";
+                    mainTable.classList.add('is-admin');
+                } else {
+                    adminSection.style.display = "none";
+                    clearAllBtn.style.display = "none";
+                    logoutBtn.style.display = "none";
+                    mainTable.classList.remove('is-admin');
+                }
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+                    promptAdminLogin();
+                }
+            });
+
+            let clickCount = 0;
+            logoTrigger.addEventListener('click', () => {
+                clickCount++;
+                if (clickCount >= 5) {
+                    clickCount = 0;
+                    promptAdminLogin();
+                }
+            });
+
+            function promptAdminLogin() {
+                if (isAdmin) return;
+                const accessInput = prompt("Enter Secret Admin Access Code to unlock changes:");
+                if (accessInput === SECRET_CODE) {
+                    isAdmin = true;
+                    sessionStorage.setItem('mcIsAdmin', 'true');
+                    checkAdminUI();
+                    const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
+                    renderLeaderboard(searchInput.value, currentActiveTab);
+                } else if (accessInput !== null) {
+                    alert("Incorrect Code Access Denied.");
+                }
+            }
+
+            logoutBtn.addEventListener('click', () => {
+                isAdmin = false;
+                sessionStorage.removeItem('mcIsAdmin');
+                checkAdminUI();
+                const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
+                renderLeaderboard(searchInput.value, currentActiveTab);
+            });
+
+            function renderLeaderboard(filterQuery = "", activeTab = "Overall") {
+                rowsContainer.innerHTML = "";
+                players.sort((a, b) => b.points - a.points);
+
+                let filteredPlayers = players;
+
+                if (filterQuery.trim() !== "") {
+                    filteredPlayers = filteredPlayers.filter(p => 
+                        p.username.toLowerCase().includes(filterQuery.toLowerCase())
+                    );
+                }
+
+                if (filteredPlayers.length === 0) {
+                    rowsContainer.innerHTML = `<div style="padding: 30px; color: #53637c; text-align:center; font-weight:600;">No players found. Try adding some via admin panel!</div>`;
+                    return;
+                }
+
+                filteredPlayers.forEach((player, index) => {
+                    const currentRank = index + 1;
+                    
+                    let rankClass = "regular-rank";
+                    if (currentRank === 1) rankClass = "rank-1";
+                    if (currentRank === 2) rankClass = "rank-2";
+                    if (currentRank === 3) rankClass = "rank-3";
+
+                    const titleClass = player.title === "Combat Master" ? "title-master" : "title-ace";
+                    const regionClass = player.region.toLowerCase();
+
+                    let tiersHTML = '<div class="multi-tiers-container">';
+                    gameModesList.forEach(mode => {
+                        const tierVal = player.tiers[mode.id] || "---";
+                        let tierColorClass = "t-none";
+                        if (tierVal.startsWith("HT")) tierColorClass = "t-ht";
+                        if (tierVal.startsWith("LT")) tierColorClass = "t-lt";
+
+                        const isActiveIndicator = (activeTab === mode.id) ? `style="border-color:#ffb300; background: rgba(255,179,0,0.05);"` : '';
+
+                        tiersHTML += `
+                            <div class="mini-tier-badge" ${isActiveIndicator} title="${mode.label}: ${tierVal}">
+                                <span class="badge-emoji">${mode.emoji}</span>
+                                <span class="mini-tier-label ${tierColorClass}">${tierVal}</span>
+                            </div>
+                        `;
+                    });
+                    tiersHTML += '</div>';
+
+                    const row = document.createElement('div');
+                    row.className = 'player-row';
+                    
+                    let actionButtonHTML = '';
+                    if (isAdmin) {
+                        actionButtonHTML = `
+                            <div class="col-actions" style="text-align: right;">
+                                <button class="delete-player-btn" data-username="${player.username}"><i class="fa-solid fa-user-minus"></i> Remove</button>
+                            </div>
+                        `;
+                    }
+
+                    row.innerHTML = `
+                        <div class="col-rank rank-badge ${rankClass}">${currentRank}.</div>
+                        <div class="col-player player-profile">
+                            <img src="https://mc-heads.net/avatar/${player.username}/40" alt="Avatar" class="avatar" onerror="this.src='https://mc-heads.net/avatar/steve/40'">
+                            <div class="player-info">
+                                <div class="username">${player.username}</div>
+                                <div class="sub-text"><span class="rank-title ${titleClass}">✦ ${player.title}</span> (${player.points} points)</div>
+                            </div>
+                        </div>
+                        <div class="col-region"><span class="region-tag ${regionClass}">${player.region}</span></div>
+                        <div class="col-tiers">${tiersHTML}</div>
+                        ${actionButtonHTML}
+                    `;
+                    rowsContainer.appendChild(row);
+                });
+
+                localStorage.setItem('mcPlayersRows', JSON.stringify(players));
+            }
+
+            addForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!isAdmin) return;
+
+                const username = document.getElementById('p-username').value.trim();
+                const title = document.getElementById('p-title').value;
+                const points = parseInt(document.getElementById('p-points').value);
+                const region = document.getElementById('p-region').value;
+                
+                const tiers = {};
+                document.querySelectorAll('.gamemode-tier-input').forEach(select => {
+                    const modeId = select.getAttribute('data-mode');
+                    tiers[modeId] = select.value;
+                });
+
+                if (players.some(p => p.username.toLowerCase() === username.toLowerCase())) {
+                    alert("This player already exists on the leaderboard!");
+                    return;
+                }
+
+                players.push({ username, title, points, region, tiers });
+                addForm.reset();
+                
+                document.querySelectorAll('.gamemode-tier-input').forEach(s => s.value = "---");
+                
+                const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
+                renderLeaderboard(searchInput.value, currentActiveTab);
+            });
+
+            rowsContainer.addEventListener('click', (e) => {
+                if (!isAdmin) return;
+                if (e.target.classList.contains('delete-player-btn') || e.target.closest('.delete-player-btn')) {
+                    const targetBtn = e.target.classList.contains('delete-player-btn') ? e.target : e.target.closest('.delete-player-btn');
+                    const targetUser = targetBtn.getAttribute('data-username');
+                    const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
+                    
+                    players = players.filter(p => p.username !== targetUser);
+                    renderLeaderboard(searchInput.value, currentActiveTab);
+                }
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                const currentActiveTab = document.querySelector('.tab-btn.active').getAttribute('data-mode');
+                renderLeaderboard(e.target.value, currentActiveTab);
+            });
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('add-player-form'); // safety class addition if layout relies on state handling inside classes
+                    tab.classList.add('active');
+                    
+                    const selectedMode = tab.getAttribute('data-mode');
+                    renderLeaderboard(searchInput.value, selectedMode);
+                });
+            });
+
+            clearAllBtn.addEventListener('click', () => {
+                if (!isAdmin) return;
+                if(confirm("Are you sure you want to completely clear your custom leaderboard?")) {
+                    players = [];
+                    renderLeaderboard();
+                }
+            });
+
+            checkAdminUI();
+            renderLeaderboard();
+        });
+    </script>
+</body>
+</html>
