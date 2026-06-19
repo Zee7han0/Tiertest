@@ -430,6 +430,12 @@
     </div>
 
     <script>
+        // FORCES THE BROWSER TO UPDATE IMMEDIATELY AND NOT HIDE THE NEW HARDCODED PLYERS
+        if (!localStorage.getItem('mc_board_v2_initialized')) {
+            localStorage.clear();
+            localStorage.setItem('mc_board_v2_initialized', 'true');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const SECRET_CODE = "admin123";
             const gameModesList = [
@@ -478,28 +484,23 @@
             const importTriggerBtn = document.getElementById('import-trigger-btn');
             const importFileInput = document.getElementById('import-file-input');
 
-            // --- HARDCODED ORIGINAL ACTIVE REAL PLAYERS FROM THE SYSTEM IMAGE ---
+            // --- HARDCODED PLAYER SETUP PRECISELY MATCHING THE SPECIFIED IMAGE SETTINGS ---
             const initialDefaultRows = [
                 {
-                    username: "Dolphin",
-                    title: "Combat Master",
-                    points: 50,
-                    region: "NA",
-                    tiers: { "Crystal": "HT1", "UHC": "HT1", "Pot": "HT1", "Neth Pot": "HT1", "SMP": "HT1", "Sword": "HT1", "Axe": "HT1", "Mace": "HT1" }
-                },
-                {
-                    username: "qAsm_",
-                    title: "Combat Master",
-                    points: 40,
-                    region: "NA",
-                    tiers: { "Crystal": "HT1", "UHC": "HT1", "Pot": "HT1", "Neth Pot": "HT1", "SMP": "HT1", "Sword": "HT1", "Axe": "HT1", "Mace": "HT1" }
-                },
-                {
-                    username: "notY_u",
-                    title: "Combat Master",
-                    points: 30,
-                    region: "NA",
-                    tiers: { "Crystal": "HT1", "UHC": "HT1", "Pot": "HT1", "Neth Pot": "HT1", "SMP": "HT1", "Sword": "HT1", "Axe": "HT1", "Mace": "HT1" }
+                    username: "Risen_blood",
+                    title: "Combat Ace",
+                    points: 35,
+                    region: "EU",
+                    tiers: { 
+                        "Crystal": "LT3", 
+                        "UHC": "HT5", 
+                        "Pot": "---", 
+                        "Neth Pot": "HT5", 
+                        "SMP": "LT4", 
+                        "Sword": "LT4", 
+                        "Axe": "HT5", 
+                        "Mace": "LT4" 
+                    }
                 }
             ];
 
