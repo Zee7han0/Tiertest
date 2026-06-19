@@ -141,7 +141,6 @@
         }
         .submit-btn:hover { background-color: #ffe082; }
         
-        /* Save / Load Admin Actions */
         .backup-zone {
             display: flex;
             gap: 10px;
@@ -479,21 +478,28 @@
             const importTriggerBtn = document.getElementById('import-trigger-btn');
             const importFileInput = document.getElementById('import-file-input');
 
-            // --- OPTION 1 IMPL: SEED POPULATED ROWS DIRECTLY IF VISITOR HAS AN EMPTY DATA ARRAY ---
+            // --- HARDCODED ORIGINAL ACTIVE REAL PLAYERS FROM THE SYSTEM IMAGE ---
             const initialDefaultRows = [
                 {
                     username: "Dolphin",
                     title: "Combat Master",
-                    points: 1250,
+                    points: 50,
                     region: "NA",
-                    tiers: { "Crystal": "HT1", "UHC": "LT1", "Pot": "HT2", "Neth Pot": "LT2", "SMP": "HT3", "Sword": "---", "Axe": "---", "Mace": "---" }
+                    tiers: { "Crystal": "HT1", "UHC": "HT1", "Pot": "HT1", "Neth Pot": "HT1", "SMP": "HT1", "Sword": "HT1", "Axe": "HT1", "Mace": "HT1" }
                 },
                 {
-                    username: "SamplePlayer",
-                    title: "Combat Ace",
-                    points: 980,
-                    region: "EU",
-                    tiers: { "Crystal": "LT2", "UHC": "HT3", "Pot": "LT1", "Neth Pot": "---", "SMP": "---", "Sword": "HT5", "Axe": "LT2", "Mace": "---" }
+                    username: "qAsm_",
+                    title: "Combat Master",
+                    points: 40,
+                    region: "NA",
+                    tiers: { "Crystal": "HT1", "UHC": "HT1", "Pot": "HT1", "Neth Pot": "HT1", "SMP": "HT1", "Sword": "HT1", "Axe": "HT1", "Mace": "HT1" }
+                },
+                {
+                    username: "notY_u",
+                    title: "Combat Master",
+                    points: 30,
+                    region: "NA",
+                    tiers: { "Crystal": "HT1", "UHC": "HT1", "Pot": "HT1", "Neth Pot": "HT1", "SMP": "HT1", "Sword": "HT1", "Axe": "HT1", "Mace": "HT1" }
                 }
             ];
 
@@ -520,7 +526,6 @@
                 }
             }
 
-            // Click logo 5 times to open Admin layout
             let clickCount = 0;
             logoTrigger.addEventListener('click', () => {
                 clickCount++;
@@ -552,7 +557,6 @@
                 renderLeaderboard(searchInput.value, currentActiveTab);
             });
 
-            // --- SAVE FILE LOGIC (EXPORT TO FILE) ---
             exportBtn.addEventListener('click', () => {
                 if(players.length === 0) {
                     alert("Add some players to your leaderboard before exporting!");
@@ -569,7 +573,6 @@
                 URL.revokeObjectURL(url);
             });
 
-            // --- LOAD FILE LOGIC (IMPORT FROM FILE) ---
             importTriggerBtn.addEventListener('click', () => {
                 importFileInput.click();
             });
@@ -595,13 +598,12 @@
                     }
                 };
                 reader.readAsText(file);
-                importFileInput.value = ""; // Clear file selector
+                importFileInput.value = "";
             });
 
             function renderLeaderboard(filterQuery = "", activeTab = "Overall") {
                 rowsContainer.innerHTML = "";
                 
-                // Filter rows based on matching dynamic active tier configurations if submode selected
                 let processingPlayers = [...players];
                 if (activeTab !== "Overall") {
                     processingPlayers = processingPlayers.filter(p => p.tiers[activeTab] && p.tiers[activeTab] !== "---");
@@ -740,7 +742,6 @@
                 }
             });
 
-            // Initial UI Boot processes
             checkAdminUI();
             renderLeaderboard();
         });
