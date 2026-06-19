@@ -479,7 +479,25 @@
             const importTriggerBtn = document.getElementById('import-trigger-btn');
             const importFileInput = document.getElementById('import-file-input');
 
-            let players = JSON.parse(localStorage.getItem('mcPlayersRows')) || [];
+            // --- OPTION 1 IMPL: SEED POPULATED ROWS DIRECTLY IF VISITOR HAS AN EMPTY DATA ARRAY ---
+            const initialDefaultRows = [
+                {
+                    username: "Dolphin",
+                    title: "Combat Master",
+                    points: 1250,
+                    region: "NA",
+                    tiers: { "Crystal": "HT1", "UHC": "LT1", "Pot": "HT2", "Neth Pot": "LT2", "SMP": "HT3", "Sword": "---", "Axe": "---", "Mace": "---" }
+                },
+                {
+                    username: "SamplePlayer",
+                    title: "Combat Ace",
+                    points: 980,
+                    region: "EU",
+                    tiers: { "Crystal": "LT2", "UHC": "HT3", "Pot": "LT1", "Neth Pot": "---", "SMP": "---", "Sword": "HT5", "Axe": "LT2", "Mace": "---" }
+                }
+            ];
+
+            let players = JSON.parse(localStorage.getItem('mcPlayersRows')) || initialDefaultRows;
             let isAdmin = sessionStorage.getItem('mcIsAdmin') === 'true';
 
             function savePlayersData() {
@@ -582,7 +600,14 @@
 
             function renderLeaderboard(filterQuery = "", activeTab = "Overall") {
                 rowsContainer.innerHTML = "";
-                const displayPlayers = [...players].sort((a, b) => b.points - a.points);
+                
+                // Filter rows based on matching dynamic active tier configurations if submode selected
+                let processingPlayers = [...players];
+                if (activeTab !== "Overall") {
+                    processingPlayers = processingPlayers.filter(p => p.tiers[activeTab] && p.tiers[activeTab] !== "---");
+                }
+
+                const displayPlayers = processingPlayers.sort((a, b) => b.points - a.points);
                 let filteredPlayers = displayPlayers;
 
                 if (filterQuery.trim() !== "") {
@@ -592,7 +617,7 @@
                 }
 
                 if (filteredPlayers.length === 0) {
-                    rowsContainer.innerHTML = `<div style="padding: 30px; color: #53637c; text-align:center; font-weight:600;">No data active. Click "Import Data File" or active Admin settings to populate rows.</div>`;
+                    rowsContainer.innerHTML = `<div style="padding: 30px; color: #53637c; text-align:center; font-weight:600;">No player rows match or exist for this filter setup.</div>`;
                     return;
                 }
 
@@ -707,14 +732,15 @@
             });
 
             clearAllBtn.addEventListener('click', () => {
-                if (!isAdmin) return;
-                if(confirm("Wipe layout data completely?")) {
+                if(!isAdmin) return;
+                if(confirm("Are you absolutely sure you want to completely clear the local array board system?")) {
                     players = [];
                     savePlayersData();
                     renderLeaderboard();
                 }
             });
 
+            // Initial UI Boot processes
             checkAdminUI();
             renderLeaderboard();
         });
