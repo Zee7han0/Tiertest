@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dolphin Tiers</title>
+    <title>DOLPHIN Tiers - Saveable Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -430,10 +430,10 @@
     </div>
 
     <script>
-        // TRIPPED V3 FLAG TO IMMEDIATELY APPLY THE NEWLY EXPANDED BASELINE ROSTER
-        if (localStorage.getItem('mc_board_v2_initialized') || !localStorage.getItem('mc_board_v3_initialized')) {
+        // TRIGGER NEW STORAGE STATE FOR FIXED SPELLING WIPE
+        if (localStorage.getItem('mc_board_v3_initialized') || !localStorage.getItem('mc_board_v4_initialized')) {
             localStorage.clear();
-            localStorage.setItem('mc_board_v3_initialized', 'true');
+            localStorage.setItem('mc_board_v4_initialized', 'true');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -484,7 +484,7 @@
             const importTriggerBtn = document.getElementById('import-trigger-btn');
             const importFileInput = document.getElementById('import-file-input');
 
-            // --- ALL CURRENT CONFIGURATIONS CORRESPONDING TO SPECIFIED USER RUNTIME MEDIA FILES ---
+            // FIXED TYPO TO PRECISELY MATCH VERBATIM STRING VALUES IN image_2eadf9.png
             const initialDefaultRows = [
                 {
                     username: "Risen_blood",
