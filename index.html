@@ -25,4 +25,6 @@ function render(){const q=$('search').value.toLowerCase();let arr=players.filter
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function escAttr(s){return String(s??'').replace(/'/g,"\\'")}
 async function del(u){if(!confirm('Delete '+u+'?'))return;await api('/api/players/'+encodeURIComponent(u),{method:'DELETE'});load()}
 $('search').oninput=render;$('adminBtn').onclick=()=>$('modal').classList.add('show');$('close').onclick=()=>$('modal').classList.remove('show');$('login').onclick=async()=>{try{await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:$('password').value})});isAdmin=true;$('modal').classList.remove('show');render()}catch(e){$('notice').textContent='Invalid password'}};load();
-</script></body></html>
+</script>
+<!-- Void Tierttests v2: GitHub Pages cache-bust -->
+</body></html>
